@@ -90,6 +90,11 @@ Once the workflow finishes:
 
 ## Troubleshooting
 
+- **Workflows not visible after fork**: Open the **Actions** tab and click **I understand my workflows, go ahead and enable them**. Forked repositories do not run Actions until you explicitly enable them.
 - **"Unable to Verify App"**: Go to iOS Settings -> General -> VPN & Device Management and trust your certificate.
 - **Installation waits forever**: Ensure your device's UDID is included in the Provisioning Profile you uploaded.
 - **Build fails**: Check the Actions logs. Common errors include mismatched Bundle IDs or expired certificates.
+
+## Localized Guides
+
+- [简体中文指南](../i18n/zh-Hans/FORK_AUTOBUILD_GUIDE.md)
