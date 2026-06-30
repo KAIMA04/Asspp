@@ -41,6 +41,44 @@
 
 > 若设备支持巨魔，安装后无需反复签名，最省心。
 
+#### 路径 A+：没有巨魔、没有开发者账号（大多数人适用）
+
+这是**最现实的方案**：用**免费 Apple ID** 签名，应用 **7 天后过期**，需重新签名。
+
+**你需要：** Windows 电脑 + 数据线 + 一个**备用 Apple ID**（不要用主力账号）
+
+**第 1 步：下载 IPA**
+
+iPhone 或电脑浏览器打开：
+
+https://github.com/Lakr233/Asspp/releases/latest
+
+下载 `Asspp.ipa`（当前最新版约 15 MB）
+
+**第 2 步：选一种 Windows 签名工具**
+
+| 工具 | 下载 | 特点 |
+|------|------|------|
+| **Sideloadly** | [sideloadly.io](https://sideloadly.io) | 英文界面，步骤简单，推荐 |
+| **爱思助手** | [i4.cn](https://www.i4.cn) | 中文界面，国内用户熟悉 |
+| **AltStore** | [altstore.io](https://altstore.io) | 需装 AltServer，最多 3 个 App，可 WiFi 续签 |
+
+**第 3 步：Sideloadly 安装步骤（推荐）**
+
+1. Windows 安装 [iTunes](https://www.apple.com/itunes/) 或 [Apple 设备支持驱动](https://support.apple.com/downloads)（用于识别 iPhone）
+2. iPhone 数据线连接电脑 → 手机上点「信任此电脑」
+3. 打开 Sideloadly → 拖入 `Asspp.ipa`
+4. 输入**备用 Apple ID** 和密码（不要用主力账号）
+5. 若开启双重认证，去 [appleid.apple.com](https://appleid.apple.com) 生成**专用密码**
+6. 点 Start → 等待安装完成
+7. iPhone：**设置 → 通用 → VPN 与设备管理** → 信任该开发者
+
+**第 4 步：7 天后续签**
+
+免费签名有效期 **7 天**。到期后 App 打不开，重新用 Sideloadly 装一次即可（不用删，直接覆盖安装）。
+
+> **GitHub Actions 对你不是必须的** — 官方 Releases 的 IPA 和云端构建的未签名 IPA 本质相同，直接下载更省事。
+
 ### 路径 B：无 Mac + 有开发者账号 → OTA 自动安装
 
 你需要在 **浏览器** 完成 Apple Developer 操作，在 **Windows/Linux** 生成证书文件。
