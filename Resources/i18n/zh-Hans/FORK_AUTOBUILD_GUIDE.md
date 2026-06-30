@@ -18,7 +18,92 @@
 | **无签名构建** | `Build App` | 不需要 | 不可以 | 仅验证能否编译，需自行签名 |
 | **正式发布** | `Release` | 不需要 | 不可以 | 打 tag 时发布未签名 IPA/ZIP |
 
-本文重点介绍**方案一（签名 + OTA）**。
+本文重点介绍**方案一（签名 + OTA）**。如果你没有 Mac，请直接看 **[没有 Mac 怎么办？](#没有-mac-怎么办)**。
+
+---
+
+## 没有 Mac 怎么办？
+
+**好消息：编译不需要你的 Mac。** GitHub Actions 会在云端 macOS 机器上完成构建，你本地只需要浏览器 + 任意电脑（Windows / Linux 均可）。
+
+根据你的情况，选一条路径：
+
+| 你的情况 | 推荐方案 | 难度 |
+|---------|---------|------|
+| 不想付费开发者账号 | 直接下载 [官方 Releases](https://github.com/Lakr233/Asspp/releases) 的 IPA，用巨魔/ESign 等安装 | ⭐ 最简单 |
+| 有付费开发者账号，想 OTA 自动安装 | 浏览器创建证书 + Linux/Windows 生成 Secrets + GitHub 自动构建 | ⭐⭐⭐ |
+| 没有开发者账号，但想自己构建 | 触发 **Build App** 工作流，下载未签名 IPA 后自行签名 | ⭐⭐ |
+
+### 路径 A：最简单（无需 GitHub Actions）
+
+1. iPhone Safari 打开 [Releases](https://github.com/Lakr233/Asspp/releases) 下载 `.ipa`
+2. 用 **TrollStore（巨魔）**、**ESign**、**Sideloadly（Windows）** 等工具安装
+
+> 若设备支持巨魔，安装后无需反复签名，最省心。
+
+### 路径 B：无 Mac + 有开发者账号 → OTA 自动安装
+
+你需要在 **浏览器** 完成 Apple Developer 操作，在 **Windows/Linux** 生成证书文件。
+
+#### B1. 浏览器操作（developer.apple.com）
+
+1. 创建 App ID：`wiki.qaq.Asspp`
+2. 注册设备 UDID（iPhone Safari 打开 [udid.tech](https://udid.tech) 获取，无需 Mac）
+3. 创建 **Apple Distribution** 证书时，需要上传 CSR 文件（见 B2）
+4. 下载 `.cer` 证书文件
+5. 创建 **Ad Hoc** 描述文件，勾选你的设备，下载 `.mobileprovision`
+
+#### B2. 在 Windows / Linux 生成 CSR 和 .p12
+
+**Linux / macOS / Git Bash：**
+
+```bash
+# 1. 生成私钥和 CSR
+openssl genrsa -out private.key 2048
+openssl req -new -key private.key -out request.csr \
+  -subj "/emailAddress=你的邮箱/CN=你的名字/C=CN"
+
+# 2. 把 request.csr 上传到 Apple Developer 网站，下载 distribution.cer
+
+# 3. 转成 .p12（把密码换成你想要的）
+openssl x509 -in distribution.cer -inform DER -out certificate.pem -outform PEM
+openssl pkcs12 -export -out certificate.p12 \
+  -inkey private.key -in certificate.pem \
+  -password pass:你的p12密码
+```
+
+**Windows PowerShell** 需先安装 [OpenSSL](https://slproweb.com/products/Win32OpenSSL.html)，命令同上。
+
+#### B3. 上传 GitHub Secrets（跨平台脚本）
+
+```bash
+git clone https://github.com/<你的用户名>/Asspp.git
+cd Asspp
+
+# 此脚本支持 Linux / Windows Git Bash，不依赖 Mac
+./Resources/Scripts/generate.github.action.inputs.cross.sh \
+  --p12 ./certificate.p12 \
+  --p12-password '你的p12密码' \
+  --mobileprovision ./Asspp_AdHoc.mobileprovision
+
+export GITHUB_REPOSITORY="<你的用户名>/Asspp"
+/tmp/asspp-gha-inputs-xxxx/apply-with-gh.sh
+```
+
+没有 `gh` CLI 也可以：把 `secrets/*.txt` 里的内容手动粘贴到 GitHub → Settings → Secrets。
+
+然后按本文第 3–6 步启用 Actions、触发 **Upstream Signed iOS Build**、Safari 打开 OTA 链接安装。
+
+### 路径 C：无 Mac + 无开发者账号 → 云端构建未签名 IPA
+
+1. Fork 仓库，在 **Actions** 页面启用工作流
+2. 打开 **Actions** → **Build App** → **Run workflow**
+3. 构建完成后，在 Artifacts 下载 `Asspp.ipa`（未签名）
+4. 用以下工具之一签名安装：
+   - **TrollStore**：无需签名，直接安装（需设备支持）
+   - **ESign**：在 iPhone 上直接签名安装
+   - **Sideloadly**（Windows）：用免费 Apple ID 签名，7 天有效
+   - **AltStore** + Windows 版 AltServer
 
 ---
 
